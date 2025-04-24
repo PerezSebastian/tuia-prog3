@@ -22,6 +22,20 @@ class AStarSearch:
         explored = {} 
         
         # Add the node to the explored dictionary
-        explored[node.state] = True
-        
+        explored[node.state] = 0
+        frontier = PriorityQueueFrontier()
+        frontier.add(node, h(node, grid))
+        while not frontier.is_empty():
+            frontier_node = frontier.pop()
+            if(grid.end == frontier_node.state): 
+                return Solution(frontier_node, explored)
+            for action, state in grid.get_neighbours(frontier_node.state).items():
+                cost = frontier_node.cost + grid.get_cost(state)
+                if state not in explored or cost < explored[state] :
+                    new_node = Node("",state,cost,frontier_node,action)
+                    explored[state] = cost
+                    frontier.add(new_node, h(new_node, grid))
         return NoSolution(explored)
+    
+def h(node : Node, grid : Grid) -> int :
+    return abs(node.state[0]-grid.end[0]) + abs(node.state[1]-grid.end[1]) + node.cost

@@ -29,9 +29,7 @@ class DepthFirstSearch:
         frontier = StackFrontier()
         frontier.add(node)
         
-        while True:
-            if(frontier.is_empty()):
-                return NoSolution(explored)
+        while not frontier.is_empty():
             frontier_node = frontier.remove()
             if frontier_node in explored:
                 continue
@@ -43,3 +41,4 @@ class DepthFirstSearch:
                     if grid.end == new_node.state:
                         return Solution(new_node, explored)
                     frontier.add(new_node)
+        return NoSolution(explored)

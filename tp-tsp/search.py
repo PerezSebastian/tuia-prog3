@@ -81,11 +81,97 @@ class HillClimbing(LocalSearch):
 
 class HillClimbingReset(LocalSearch):
     """Algoritmo de ascension de colinas con reinicio aleatorio."""
+    def __init__(self, max_iters : int = 20):
+        super().__init__()
+        self.max_iters: int = max_iters
+        
+    def solve(self, problem: OptProblem):
+        """Resuelve un problema de optimizacion con ascension de colinas.
 
-    # COMPLETAR
+        Argumentos:
+        ==========
+        problem: OptProblem
+            un problema de optimizacion
+        """
+        # Inicio del reloj
+        start = time()
+
+        # Arrancamos del estado inicial
+        actual = problem.init
+        value = problem.obj_val(problem.init)
+        self.value = value
+        self.tour = actual
+        
+        for i in range(self.max_iters):
+            
+            while True:
+                # Buscamos la acción que genera el sucesor con mayor valor objetivo
+                act, succ_val = problem.max_action(actual)
+                # Retornar si estamos en un maximo local:
+                # el valor objetivo del sucesor es menor o igual al del estado actual
+                if succ_val <= value:
+                    break
+
+                # Sino, nos movemos al sucesor
+                actual = problem.result(actual, act)
+                value = succ_val
+                self.niters += 1
+                
+            if(self.value < value):
+                self.value = value
+                self.tour = actual
+            
+            actual = problem.random_reset()
+            value = problem.obj_val(actual)
+        
+        end = time()
+        self.time = end-start    
+            
 
 
 class Tabu(LocalSearch):
     """Algoritmo de busqueda tabu."""
+    def __init__(self):
+        super().__init__()
+        self.tabu : list[tuple[int,int]] = []
+        self.tabu_max_size : int = 10
+        self.max_runtime : float = 2
+        
+    def solve(self, problem: OptProblem):
+        # Inicio del reloj
+        start = time()
 
-    # COMPLETAR
+        # Arrancamos del estado inicial
+        actual = problem.init
+        value = problem.obj_val(problem.init)
+        self.value = value
+        self.tour = actual
+        
+        # Implementacion
+        while(self.time <= self.max_runtime):
+            # Buscamos la acción que genera el sucesor con mayor valor objetivo
+            act, succ_val = problem.max_action(actual,self.tabu)
+            self.add(act)
+            actual = problem.result(actual, act)
+            value = succ_val
+            if(self.value < value):
+                self.value = value
+                self.tour = actual
+            self.niters += 1
+            end = time()
+            self.time = end-start
+            
+    def is_empty(self):
+        return self.tabu == []
+    
+    def pop(self):
+        if(not self.is_empty()):
+            return self.tabu.pop(0)
+    
+    def add(self, action : tuple[int,int]):
+        if(len(self.tabu) == self.tabu_max_size):
+            self.pop()
+        self.tabu.append(action)
+        
+    #Random Reset
+    #

@@ -183,6 +183,7 @@ class TSP(OptProblem):
         max_act = None
         max_val = float("-inf")
         for a in self.actions(state):
+            #Si la accion esta dentro de la lista tabu, pasamos a la siguiente accion
             if a in tabu:
                 continue
             i, j = a

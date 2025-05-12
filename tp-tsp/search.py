@@ -83,6 +83,9 @@ class HillClimbingReset(LocalSearch):
     """Algoritmo de ascension de colinas con reinicio aleatorio."""
     def __init__(self, max_iters : int = 20):
         super().__init__()
+        #Elegimos 20 reinicios por defecto tras realizar pruebas por incremento de un reinicio a la vez, fue el mejor
+        #Resultado para la instancia mas grande
+        #Las pruebas se encuentran en el archivo AnalisisHillClimbingReinicioAleatorio.xls
         self.max_iters: int = max_iters
         
     def solve(self, problem: OptProblem):
@@ -107,7 +110,7 @@ class HillClimbingReset(LocalSearch):
             while True:
                 # Buscamos la acción que genera el sucesor con mayor valor objetivo
                 act, succ_val = problem.max_action(actual)
-                # Retornar si estamos en un maximo local:
+                # Hacemos un break si estamos en un maximo local:
                 # el valor objetivo del sucesor es menor o igual al del estado actual
                 if succ_val <= value:
                     break
@@ -134,8 +137,10 @@ class Tabu(LocalSearch):
     def __init__(self):
         super().__init__()
         self.tabu : list[tuple[int,int]] = []
+        #Elegimos el valor 10 por defecto porque es el que mejor resultados consistentes obtiene en todos las instancias
         self.tabu_max_size : int = 10
-        self.max_runtime : float = 2
+        #Elegimos 3 segundos porque para la instancia mas grande nos permite mejorar el valor objetivo sin gran costo de tiempo
+        self.max_runtime : float = 3
         
     def solve(self, problem: OptProblem):
         # Inicio del reloj
@@ -147,9 +152,9 @@ class Tabu(LocalSearch):
         self.value = value
         self.tour = actual
         
-        # Implementacion
         while(self.time <= self.max_runtime):
             # Buscamos la acción que genera el sucesor con mayor valor objetivo
+            # Modificamos el metodo max_action para que reciba una lista tabu
             act, succ_val = problem.max_action(actual,self.tabu)
             self.add(act)
             actual = problem.result(actual, act)
@@ -172,6 +177,3 @@ class Tabu(LocalSearch):
         if(len(self.tabu) == self.tabu_max_size):
             self.pop()
         self.tabu.append(action)
-        
-    #Random Reset
-    #
